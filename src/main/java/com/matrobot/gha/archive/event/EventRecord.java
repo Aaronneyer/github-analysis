@@ -16,6 +16,7 @@ public class EventRecord {
 		
 		GsonBuilder builder = new GsonBuilder();
 		builder.registerTypeAdapter(Actor.class, new ActorDeserializer());
+		builder.registerTypeAdapter(Issue.class, new IssueDeserializer());
 		return builder.create();
 	}
 	
@@ -45,6 +46,10 @@ public class EventRecord {
 		public Author author;
 	}
 	
+	public class Comment{
+		public String commit_id;
+	}
+	
 	public class Payload{
 		/** “repository”, “branch”, or “tag” */
         public String ref_type;
@@ -58,6 +63,10 @@ public class EventRecord {
 		public List<Commit> commits;
 		/** Action. Used in PullRequestEvent: "opened", "closed", "synchronize", "reopened" */
 		public String action;
+		public String number;
+		public Issue issue;
+		public Comment comment;
+		public String commit;
 	}
 	
 	public class ActorAttributes{
@@ -162,17 +171,39 @@ public class EventRecord {
 		
 		return login;
 	}
+	
+	public String getAction(){
+		return payload.action;
+	}
 
+	public String getIssueNumber(){
+		if (payload.number != null)
+			return payload.number;
+		else if (payload.issue != null && payload.issue.number != null)
+			return payload.issue.number;
+		else
+			return "";
+	}
+	
+	public String getCommentCommit(){
+		if (payload.commit != null)
+			return payload.commit;
+		else if (payload.comment != null && payload.comment.commit_id != null)
+			return payload.comment.commit_id;
+		else
+			return "";
+	}
 	
 	/**
 	 * @return Header for CSV file
 	 */
 	public static String getCSVHeaders(){
-		return "created_at, repository, type, actor\n";
+		return "created_at, repository, type, actor, action, issue_number, comment_commit\n";
 	}
 	
 	
 	public String toCSV(){
-		return created_at + "," + getRepositoryId() + "," + type + "," + getActorLogin() + "\n";
+		return created_at + "," + getRepositoryId() + "," + type + "," + getActorLogin() + "," + payload.action + "," + 
+				getIssueNumber() + "," + getCommentCommit() + "\n";
 	}
 }

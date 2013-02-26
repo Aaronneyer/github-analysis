@@ -56,11 +56,9 @@ public class FilteredEventReader implements IEventReader{
 
 
 	public void addEventType(String type) {
-
 		if(eventTypes == null){
 			 eventTypes = new HashSet<String>();
 		}
-		
 		eventTypes.add(type);
 	}
 }

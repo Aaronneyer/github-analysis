@@ -55,6 +55,7 @@ public class Configuration {
 		command = config.get("command").toString();
 		setDatapath(config.get("datapath").toString());
 		loadRepoFilter(config.get("repository"));
+		loadEventFilter(config.get("event_type"));
 		if(config.get("actor") != null){
 			actor = config.get("actor").toString();
 		}
@@ -63,9 +64,6 @@ public class Configuration {
 		}
 		if(config.get("min_activity") != null){
 			minActivity = Integer.parseInt(config.get("min_activity").toString());
-		}
-		if(config.get("event_type") != null){
-			eventTypes.add(config.get("event_type").toString());
 		}
 		outputFilename = config.get("output").toString();
 		parseDate((Map<String, String>) config.get("date"));
@@ -85,7 +83,20 @@ public class Configuration {
 			repositories.add(repositoryKey.toString());
 		}
 	}
-
+	
+	@SuppressWarnings("unchecked")
+	private void loadEventFilter(Object eventKey) {
+		
+		if(eventKey instanceof List<?>){
+			List<String> events = (List<String>) eventKey;
+			for(String event : events){
+				eventTypes.add(event);
+			}
+		}
+		else if(eventKey != null){
+			eventTypes.add(eventKey.toString());
+		}
+	}
 	
 	private void parseDate(Map<String, String> date) {
 		startDate = date.get("from");
@@ -175,6 +186,10 @@ public class Configuration {
 		return repositories;
 	}
 	
+	public List<String> getEventTypes() {
+		return eventTypes;
+	}
+	
 	
 	public PrintStream getOutputStream(){
 		
@@ -209,16 +224,7 @@ public class Configuration {
 		return actor;
 	}
 
-	public String getEventType() {
-		
-		if(eventTypes.size() > 0){
-			return eventTypes.get(0);
-		}
-		
-		return null;
-	}
-
-	
+	//Test
 	public String getDateResolution() {
 		return dateResolution;
 	}
